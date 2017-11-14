@@ -1,24 +1,15 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
 
-
-class LoginInput extends Component {
-  render(){
-    return (
-      <TextInput
-        style={styles.loginInput}
-        placeholder={this.props.label}
-      />
-    );
-  }
-
-}
-
 export default class App extends Component {
 
-  _login(event){
-    console.log(event)
-    Alert.alert('on Press!');
+  constructor(props) {
+    super(props);
+    this.state = {email: '', password: ''};
+  }
+
+  _login(email, password){
+    Alert.alert(email + ", " + password);
   }
 
   render() {
@@ -28,10 +19,18 @@ export default class App extends Component {
           <Text style={styles.headerText}>Login MOVES</Text>
         </View>
         <View style={styles.content}>
-          <LoginInput label='Enter your email' />
-          <LoginInput label='Enter your password' />
+          <TextInput
+            style={styles.loginInput}
+            placeholder="Enter your email"
+            onChangeText={(text) => this.setState({email:text})}
+          />
+          <TextInput
+            style={styles.loginInput}
+            placeholder="Enter your password"
+            onChangeText={(text) => this.setState({password:text})}
+          />
           <Button
-            onPress={this._login}
+            onPress={() => this._login(this.state.email, this.state.password)}
             title="Login"
             color="#841584"
             accessibilityLabel="Login"
