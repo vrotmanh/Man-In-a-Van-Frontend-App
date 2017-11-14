@@ -9,7 +9,32 @@ export default class App extends Component {
   }
 
   _login(email, password){
-    Alert.alert(email + ", " + password);
+    fetch('https://maniavan-18000.appspot.com/users/login/', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      })
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      //Login successfully
+      if (responseJson.user_id){
+        Alert.alert(responseJson.user_id+'');
+      }
+      //Login error
+      else{
+        Alert.alert(responseJson.error+'');
+      }
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+
   }
 
   render() {
@@ -69,6 +94,8 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   loginInput: {
+    width: 200,
+    height: 50,
     fontSize: 18,
   },
   footer: {
