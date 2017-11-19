@@ -1,115 +1,480 @@
-import React from 'react';
-import { StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Image, ActivityIndicator } from 'react-native';
-
-import someRenderFunction from './myLib';
-
+import React, { Component } from 'react';
+import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableHighlight, FlatList, StatusBar } from 'react-native';
+import { StackNavigator } from 'react-navigation';
 import MapView from 'react-native-maps';
-import MyMap from './MyMap';
 
-// Possible Screen States (JS doesn't have Enum's)
-const ENTER_PHONE = 'ep';
-const ENTER_CODE  = 'ec';
-const ENTER_JOB   = 'ej';
-const SEARCHING   = 'sr';
-
-
-// This is the main application class.
-// 'export' means it can be accessed via an 'import' in another file
-// 'export default' is the idiomatic way to package a component in RN
-export default class App extends React.Component {
-
-  // This is how you implement a class constructor in ES6
+class LoginScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Login',
+  };
   constructor(props) {
-    super(props);  // this is idiomatic boilerplate for Component Constructor
-
-    // Application state currently only consists of
-    // 1. Which SCREEN are we looking at (see the SWITCH stmt in render())
-    // 2. If some loading or similar ACTIVITY is happening
-    //
-    // We may expect to extend the state significantly as the app grows,
-    // Although much state should be encapsulated in individual components
-    this.state = {
-      activity: false,
-      screen: ENTER_PHONE
+    super(props);
+    this.state = {email: '', password: ''};
+  }
+  _login(email, password){
+    if (!email || !password){
+      Alert.alert('Email or Password is missing');
     }
+    else{
+      const { navigate } = this.props.navigation;
+      fetch('https://maniavan-18000.appspot.com/users/login/', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        })
+      })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        //Login successfully
+        if (responseJson.user_id){
+          navigate('Home', { user_id: responseJson.user_id })
+        }
+        //Login error
+        else{
+          Alert.alert(responseJson.error+'');
+        }
+      })
+      .catch((error) => {
+          console.error(error);
+      });
+    }
+
   }
-
-
-  // This function gets called when someone finishes entering their number.
-  // It should probably get moved into a Component like
-  // PhoneVerification in PhoneVerification.js for example
-  onPhoneNumber = (inputText) => {
-
-    // We immediately indicate some activity is happening
-    this.setState({activity: true});
-
-    // And second we initiate the activity.  This should be a `fetch` api call,
-    // however for now we'll just use a Timeout
-    setTimeout(() => {
-       // When the timeout completes, we indicate activity no longer happening,
-       // and we change screens.  See my SWITCH statement in the render() func.
-       this.setState({
-         activity: false,
-         screen: ENTER_CODE,
-       });
-    }, 1500);
-  }
-
-
-  // This function is the main render function for the whole application.
-  // We really just SWITCH between different views.
-  // Probably all the views should really be defined in individual components
-  // where each component represents a page of the application
   render() {
-
-    // Copying state into a CONST really makes it clear that it is not possible
-    // to change state directly (you must use setState() at the appropriate time and place!)
-    const {screen} = this.state;
-
-
-    switch(screen) {
-      case ENTER_JOB:
-        return (
-          <View style={styles.container}>
-            <View style={styles.map}>
-              <MyMap/>
-            </View>
-            <View style={{flex: 3}}>
-              <Text>Other Components to go here</Text>
-            </View>
-          </View>
-        );
-        break;
-
-      case ENTER_CODE:
-         // This is just to show how you don't have to have all your JSX in-line, but
-         // you can call other functions (even in other libraries!) that return JSX
-         return someRenderFunction();
-         break;
-
-      case ENTER_PHONE:
-      default:
-        return (
-            <KeyboardAvoidingView behavior={'padding'} style={[styles.centeredView, {backgroundColor: 'black', padding: 40}]}>
-              <Text style={{color: 'white'}}>
-                 Welcome. In order to connect you with hundreds of nearby helpers,
-                 let's to make sure you can receive SMS Messages.
-              </Text>
-              <TextInput keyboardType={'numeric'} maxLength={12} style={styles.phoneNumberInput} onEndEditing={this.onPhoneNumber} editable={!this.state.activity}/>
-              <ActivityIndicator animating={this.state.activity} size={'large'} style={{margin: 20}}/>
-            </KeyboardAvoidingView>
-        );
-    }
+    const { navigate } = this.props.navigation;
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Login</Text>
+        </View>
+        <View style={styles.content}>
+          <TextInput
+            style={styles.loginInput}
+            placeholder="Enter your email"
+            onChangeText={(text) => this.setState({email:text})}
+          />
+          <TextInput
+            secureTextEntry={true}
+            style={styles.loginInput}
+            placeholder="Enter your password"
+            onChangeText={(text) => this.setState({password:text})}
+          />
+          <Button
+            onPress={() => this._login(this.state.email, this.state.password)}
+            title="Login"
+            color="#205166"
+            accessibilityLabel="Login"
+          />
+        </View>
+        <View style={styles.footer}>
+          <Button
+            onPress={() => navigate('Register')}
+            title="Register"
+            color="#205166"
+            accessibilityLabel="Register"
+          />
+          <Button
+            onPress={() => navigate('Home', { user_id: 1 })}
+            title="Bypass"
+            color="#205166"
+            accessibilityLabel="Bypass"
+          />
+        </View>
+      </View>
+    );
   }
 }
 
+class RegisterScreen extends React.Component {
+  static navigationOptions = {
+    title: 'RegisterScreen',
+  };
+  constructor(props) {
+    super(props);
+    this.state = {email: '', password: '', password_confirmation: ''};
+  }
+  _register(email, password, password_confirmation){
+    if (!email || !password || !password_confirmation){
+      Alert.alert('Fill all the inputs');
+    }
+    else if (password != password_confirmation){
+      Alert.alert('Password and Confirmation does not match');
+    }
+    else{
+      const { navigate } = this.props.navigation;
+      fetch('https://maniavan-18000.appspot.com/users/register/', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+          password_confirmation: password_confirmation,
+          kind: 'customer',
+        })
+      })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        //Login successfully
+        if (responseJson.user_id){
+          navigate('Home', { user_id: responseJson.user_id })
+        }
+        //Login error
+        else{
+          Alert.alert(responseJson.error+'');
+        }
+      })
+      .catch((error) => {
+          console.error(error);
+      });
+    }
+
+  }
+  render() {
+    const { navigate } = this.props.navigation;
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Register</Text>
+        </View>
+        <View style={styles.content}>
+          <TextInput
+            style={styles.loginInput}
+            placeholder="Enter your email"
+            onChangeText={(text) => this.setState({email:text})}
+          />
+          <TextInput
+            secureTextEntry={true}
+            style={styles.loginInput}
+            placeholder="Enter your password"
+            onChangeText={(text) => this.setState({password:text})}
+          />
+          <TextInput
+            secureTextEntry={true}
+            style={styles.loginInput}
+            placeholder="Confirm your password"
+            onChangeText={(text) => this.setState({password_confirmation:text})}
+          />
+          <Button
+            onPress={() => this._register(this.state.email, this.state.password, this.state.password_confirmation)}
+            title="Register"
+            color="#205166"
+            accessibilityLabel="Register"
+          />
+        </View>
+        <View style={styles.footer}>
+          <Button
+            onPress={() => navigate('Login')}
+            title="Go to Login"
+            color="#205166"
+            accessibilityLabel="Go to Login"
+          />
+        </View>
+      </View>
+    );
+  }
+}
+
+class CreateMoveScreen extends React.Component {
+  static navigationOptions = {
+    title: 'New Move'
+  };
+  constructor(props) {
+    super(props)
+    this.state = {
+      TextInputFrom: '',
+      TextInputTo: '',
+      TextInputDate: '',
+      TextInputRooms:''
+    }
+  }
+  CheckTextInputIsEmptyOrNot = () =>{
+    const { TextInputFrom }  = this.state ;
+    const { TextInputTo }  = this.state ;
+    const { TextInputDate }  = this.state ;
+    const { TextInputRooms }  = this.state ;
+
+
+    if(TextInputFrom == '' || TextInputTo == '' ||
+        TextInputDate == '' || TextInputRooms==''){
+          Alert.alert("You need to complete all the fields.");
+        }
+    else{
+      // Do something here which you want to if all the Text Input is filled.
+      Alert.alert("All Text Input is Filled.");
+      console.log(this.state);
+      fetch('https://maniavan-18000.appspot.com/moves', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "start_place": TextInputFrom,
+          "end_place": TextInputTo,
+          "date": TextInputDate,
+          "user_id": "1",
+        })
+      })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        //Login successfully
+        if (responseJson.user_id){
+          Alert.alert(responseJson.user_id+'');
+        }
+        //Login error
+        else{
+          Alert.alert(responseJson.error+'');
+        }
+      })
+      .catch((error) => {
+          console.error(error);
+      });
+
+    }
+
+  }
+  render() {
+    const {navigate} =this.props.navigation;
+    return   <View style={styles.MainContainer}>
+      <Text style={[styles.headline]}>New Move</Text>
+            <TextInput
+              // Adding hint in Text Input using Place holder.
+              placeholder="Enter Starting Place"
+              onChangeText={TextInputFrom=> this.setState({TextInputFrom})}
+              // Making the Under line Transparent.
+              underlineColorAndroid='transparent'
+              style={styles.TextInputStyleClass}
+            />
+            <TextInput
+              // Adding hint in Text Input using Place holder.
+              placeholder="Enter Arriving Place"
+              onChangeText={TextInputTo => this.setState({TextInputTo})}
+              // Making the Under line Transparent.
+              underlineColorAndroid='transparent'
+              style={styles.TextInputStyleClass}
+            />
+            <TextInput
+              // Adding hint in Text Input using Place holder.
+              placeholder="Enter Date"
+              onChangeText={TextInputDate => this.setState({TextInputDate})}
+              // Making the Under line Transparent.
+              underlineColorAndroid='transparent'
+              style={styles.TextInputStyleClass}
+            />
+            <TextInput
+              // Adding hint in Text Input using Place holder.
+              placeholder="Enter Number of Rooms"
+              onChangeText={TextInputRooms => this.setState({TextInputRooms})}
+              // Making the Under line Transparent.
+              underlineColorAndroid='transparent'
+              style={styles.TextInputStyleClass}
+            />
+            <Button
+              onPress={() => navigate('MoveDetails')}
+              title="Check your Price"
+            />
+            <Button title="CONFIRM" onPress={this.CheckTextInputIsEmptyOrNot} color="#2196F3" />
+      </View>;
+  }
+}
+
+class MoveDetailsScreen extends React.Component {
+  static navigationOptions = {
+    title: 'New Move'
+  };
+  render() {
+    return    <View style={styles.MainContainer}>
+              <MapView style={[styles.map]} showsUserLocation={true} />
+              <Text style={[styles.headline]}>Estimated Price</Text>
+              <Text style={[styles.headline]}>42$</Text>
+
+      </View>
+  }
+}
+
+class Move extends Component {
+  render() {
+    return (
+      <View style = {styles.test2}>
+        <Text>DateOfMove: {this.props.dateofmove}</Text>
+        <Text>Price: {this.props.price}</Text>
+        <Text>Start Point: {this.props.start_pt}</Text>
+        <Text>End Pt: {this.props.end_pt}</Text>
+      </View>
+    )
+  }
+}
+
+class HomeScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      dataSource: ''
+    }
+  }
+
+  renderRow({item}) {
+    const dateofmove = `${item.date}`;
+    const price = `${item.price}`;
+    const start_pt = `${item.start_place}`
+    const end_pt = `${item.end_place}`
+
+    let actualRowComponent =
+      <View style = {styles.test}>
+        <Move dateofmove = {dateofmove} price = {price} start_pt = {start_pt} end_pt = {end_pt} />
+      </View>;
+
+    return (
+      actualRowComponent
+    );
+  }
+
+  componentDidMount() {
+    return fetch('https://maniavan-18000.appspot.com/moves?user_id=1')
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({
+          dataSource: responseJson.moves
+        })
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  render() {
+    const { navigate } = this.props.navigation;
+    return (
+      <View style = {styles.container2}>
+        <Text style = {styles.headline2}>Your Moves</Text>
+        <StatusBar hidden={false} translucent={false} animated={true} />
+        <FlatList style = {styles.container2} data={this.state.dataSource} renderItem = {this.renderRow} />
+        <Button
+          onPress={() => navigate('CreateMove')}
+          title="Publish your move"
+          color="#205166"
+          accessibilityLabel="Go to create move"
+        />
+      </View>
+    );
+
+  }
+}
+
+const App = StackNavigator({
+  Login: { screen: LoginScreen },
+  Home: { screen: HomeScreen },
+  Register: { screen: RegisterScreen },
+  CreateMove: { screen: CreateMoveScreen },
+  MoveDetails: { screen: MoveDetailsScreen },
+});
+
+export default App;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#eee',
     alignItems: 'center',
+    alignSelf: "center"
+  },
+  header : {
+    flex: 1,
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  headerText: {
+    fontSize: 26,
+    alignItems: 'center',
+    fontWeight: 'bold',
+    color: '#205166'
+  },
+  content: {
+    flex: 2,
+    marginTop: 50,
+    alignItems: 'center',
+    flexDirection: 'column',
+  },
+  loginInput: {
+    width: 200,
+    height: 50,
+    fontSize: 18,
+  },
+  footer: {
+    flex: 1,
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+
+  body: {
+    textAlign: 'left', // <-- the magic
+    fontSize: 20,
+    marginLeft: 20,
+    width: 390,
+  },
+  MainContainer :{
     justifyContent: 'center',
+    flex:1,
+    margin: 0
+  },
+  headline: {
+    textAlign: 'center', // <-- the magic
+    fontWeight: 'bold',
+    fontSize: 48,
+    marginTop: -20,
+    marginBottom: 40,
+
+    width: 390,
+  },
+  map:{
+    marginTop: -120,
+    height: 400,
+    margin: 0,
+  },
+  TextInputStyleClass: {
+    textAlign: 'center',
+    marginBottom: 7,
+    height: 40,
+    borderWidth: 1,
+    // Set border Hex Color Code Here.
+    borderColor: '#FF5722',
+  },
+  test: {
+    //flex: 1,
+    flex: 1,
+    padding: 8,
+    flexDirection: 'column', // main axis
+    // justifyContent: 'center', // main axis
+    // alignItems: 'center', // cross axis
+    // backgroundColor: '#fff000', //colors.background_dark,
+  },
+  test2: {
+    flex: 1,
+    // backgroundColor: '#0000ff',
+    borderStyle: 'solid',
+    borderColor: '#000000',
+    borderWidth: 3,
+  },
+  headline2: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 48,
+    marginTop: 30,
+    marginBottom: 30,
+  },
+  container2: {
+    flex: 1,
+    backgroundColor: '#fff',
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
   map: {
     flex: 1,
@@ -131,5 +496,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#222'
   }
 });
-
-
