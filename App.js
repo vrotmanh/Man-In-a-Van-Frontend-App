@@ -1,42 +1,49 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
+import { StackNavigator } from 'react-navigation';
 
-export default class App extends Component {
-
+class LoginScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Login',
+  };
   constructor(props) {
     super(props);
     this.state = {email: '', password: ''};
   }
-
   _login(email, password){
-    fetch('https://maniavan-18000.appspot.com/users/login/', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: email,
-        password: password,
+    if (!email || !password){
+      Alert.alert('Email or Password is missing');
+    }
+    else{
+      const { navigate } = this.props.navigation;
+      fetch('https://maniavan-18000.appspot.com/users/login/', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        })
       })
-    })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      //Login successfully
-      if (responseJson.user_id){
-        Alert.alert(responseJson.user_id+'');
-      }
-      //Login error
-      else{
-        Alert.alert(responseJson.error+'');
-      }
-    })
-    .catch((error) => {
-        console.error(error);
-    });
+      .then((response) => response.json())
+      .then((responseJson) => {
+        //Login successfully
+        if (responseJson.user_id){
+          navigate('Home', { user_id: responseJson.user_id })
+        }
+        //Login error
+        else{
+          Alert.alert(responseJson.error+'');
+        }
+      })
+      .catch((error) => {
+          console.error(error);
+      });
+    }
 
   }
-
   render() {
     return (
       <View style={styles.container}>
@@ -68,6 +75,25 @@ export default class App extends Component {
     );
   }
 }
+
+class HomeScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Welcome',
+  };
+  render() {
+    const { navigate } = this.props.navigation;
+    return (
+        <Text>Login MOVES</Text>
+    );
+  }
+}
+
+const App = StackNavigator({
+  Login: { screen: LoginScreen },
+  Home: { screen: HomeScreen },
+});
+
+export default App;
 
 const styles = StyleSheet.create({
   container: {
