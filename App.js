@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableHighlight, FlatList, StatusBar } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import MapView from 'react-native-maps';
 
@@ -176,23 +176,6 @@ class RegisterScreen extends React.Component {
   }
 }
 
-class HomeScreen extends React.Component {
-  static navigationOptions = {
-    title: 'Moves',
-  };
-  render() {
-    const { navigate } = this.props.navigation;
-    return (
-      <Button
-        onPress={() => navigate('CreateMove')}
-        title="Publish your move"
-        color="#205166"
-        accessibilityLabel="Go to create move"
-      />
-    );
-  }
-}
-
 class CreateMoveScreen extends React.Component {
   static navigationOptions = {
     title: 'New Move'
@@ -311,6 +294,75 @@ class MoveDetailsScreen extends React.Component {
   }
 }
 
+class Move extends Component {
+  render() {
+    return (
+      <View style = {styles.test2}>
+        <Text>DateOfMove: {this.props.dateofmove}</Text>
+        <Text>Price: {this.props.price}</Text>
+        <Text>Start Point: {this.props.start_pt}</Text>
+        <Text>End Pt: {this.props.end_pt}</Text>
+      </View>
+    )
+  }
+}
+
+class HomeScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      dataSource: ''
+    }
+  }
+
+  renderRow({item}) {
+    const dateofmove = `${item.date}`;
+    const price = `${item.price}`;
+    const start_pt = `${item.start_place}`
+    const end_pt = `${item.end_place}`
+
+    let actualRowComponent =
+      <View style = {styles.test}>
+        <Move dateofmove = {dateofmove} price = {price} start_pt = {start_pt} end_pt = {end_pt} />
+      </View>;
+
+    return (
+      actualRowComponent
+    );
+  }
+
+  componentDidMount() {
+    return fetch('https://maniavan-18000.appspot.com/moves?user_id=1')
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({
+          dataSource: responseJson.moves
+        })
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  render() {
+    const { navigate } = this.props.navigation;
+    return (
+      <View style = {styles.container2}>
+        <Text style = {styles.headline2}>Your Moves</Text>
+        <StatusBar hidden={false} translucent={false} animated={true} />
+        <FlatList style = {styles.container2} data={this.state.dataSource} renderItem = {this.renderRow} />
+        <Button
+          onPress={() => navigate('CreateMove')}
+          title="Publish your move"
+          color="#205166"
+          accessibilityLabel="Go to create move"
+        />
+      </View>
+    );
+
+  }
+}
+
 const App = StackNavigator({
   Login: { screen: LoginScreen },
   Home: { screen: HomeScreen },
@@ -387,5 +439,34 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     // Set border Hex Color Code Here.
     borderColor: '#FF5722',
-  }
+  },
+  test: {
+    //flex: 1,
+    flex: 1,
+    padding: 8,
+    flexDirection: 'column', // main axis
+    // justifyContent: 'center', // main axis
+    // alignItems: 'center', // cross axis
+    // backgroundColor: '#fff000', //colors.background_dark,
+  },
+  test2: {
+    flex: 1,
+    // backgroundColor: '#0000ff',
+    borderStyle: 'solid',
+    borderColor: '#000000',
+    borderWidth: 3,
+  },
+  headline2: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 48,
+    marginTop: 30,
+    marginBottom: 30,
+  },
+  container2: {
+    flex: 1,
+    backgroundColor: '#fff',
+    // alignItems: 'center',
+    // justifyContent: 'center',
+  },
 });
