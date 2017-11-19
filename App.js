@@ -78,6 +78,12 @@ class LoginScreen extends React.Component {
             color="#205166"
             accessibilityLabel="Register"
           />
+          <Button
+            onPress={() => navigate('Home', { user_id: 1 })}
+            title="Bypass"
+            color="#205166"
+            accessibilityLabel="Bypass"
+          />
         </View>
       </View>
     );
