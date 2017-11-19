@@ -367,6 +367,8 @@ class HomeScreen extends React.Component {
     );
   }
 
+  _keyExtractor = (item, index) => index;
+
   componentDidMount() {
     return fetch('https://maniavan-18000.appspot.com/moves?user_id=1')
       .then((response) => response.json())
@@ -386,7 +388,11 @@ class HomeScreen extends React.Component {
       <View style = {styles.container2}>
         <Text style = {styles.headline2}>Your Moves</Text>
         <StatusBar hidden={false} translucent={false} animated={true} />
-        <FlatList style = {styles.container2} data={this.state.dataSource} renderItem = {this.renderRow} />
+        <FlatList
+        style = {styles.container2}
+        data={this.state.dataSource}
+        renderItem = {this.renderRow}
+        keyExtractor = {this._keyExtractor} />
         <Button
           onPress={() => navigate('CreateMove')}
           title="Publish your move"
@@ -413,6 +419,7 @@ export default App;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#eee',
     alignItems: 'center',
     alignSelf: "center"
   },
@@ -506,4 +513,23 @@ const styles = StyleSheet.create({
     // alignItems: 'center',
     // justifyContent: 'center',
   },
+  map: {
+    flex: 1,
+    alignSelf: 'stretch',
+    backgroundColor: '#222'
+  },
+  centeredView: {
+    flex:1,
+    alignItems:'stretch',
+    justifyContent:'center'
+  },
+
+  // Probably this style should get moved into a dedicated PhoneValidation component.
+  phoneNumberInput: {
+    marginTop: 20,
+    fontSize: 45,
+    color: 'white',
+    textAlign: 'center',
+    backgroundColor: '#222'
+  }
 });
