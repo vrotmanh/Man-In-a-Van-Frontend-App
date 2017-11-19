@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableHighlight } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import MapView from 'react-native-maps';
 
 class LoginScreen extends React.Component {
   static navigationOptions = {
@@ -177,13 +178,136 @@ class RegisterScreen extends React.Component {
 
 class HomeScreen extends React.Component {
   static navigationOptions = {
-    title: 'Welcome',
+    title: 'Moves',
   };
   render() {
     const { navigate } = this.props.navigation;
     return (
-        <Text>MOVES</Text>
+      <Button
+        onPress={() => navigate('CreateMove')}
+        title="Publish your move"
+        color="#205166"
+        accessibilityLabel="Go to create move"
+      />
     );
+  }
+}
+
+class CreateMoveScreen extends React.Component {
+  static navigationOptions = {
+    title: 'New Move'
+  };
+  constructor(props) {
+    super(props)
+    this.state = {
+      TextInputFrom: '',
+      TextInputTo: '',
+      TextInputDate: '',
+      TextInputRooms:''
+    }
+  }
+  CheckTextInputIsEmptyOrNot = () =>{
+    const { TextInputFrom }  = this.state ;
+    const { TextInputTo }  = this.state ;
+    const { TextInputDate }  = this.state ;
+    const { TextInputRooms }  = this.state ;
+
+
+    if(TextInputFrom == '' || TextInputTo == '' ||
+        TextInputDate == '' || TextInputRooms==''){
+          Alert.alert("You need to complete all the fields.");
+        }
+    else{
+      // Do something here which you want to if all the Text Input is filled.
+      Alert.alert("All Text Input is Filled.");
+      console.log(this.state);
+      fetch('https://maniavan-18000.appspot.com/moves', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "start_place": TextInputFrom,
+          "end_place": TextInputTo,
+          "date": TextInputDate,
+          "user_id": "1",
+        })
+      })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        //Login successfully
+        if (responseJson.user_id){
+          Alert.alert(responseJson.user_id+'');
+        }
+        //Login error
+        else{
+          Alert.alert(responseJson.error+'');
+        }
+      })
+      .catch((error) => {
+          console.error(error);
+      });
+
+    }
+
+  }
+  render() {
+    const {navigate} =this.props.navigation;
+    return   <View style={styles.MainContainer}>
+      <Text style={[styles.headline]}>New Move</Text>
+            <TextInput
+              // Adding hint in Text Input using Place holder.
+              placeholder="Enter Starting Place"
+              onChangeText={TextInputFrom=> this.setState({TextInputFrom})}
+              // Making the Under line Transparent.
+              underlineColorAndroid='transparent'
+              style={styles.TextInputStyleClass}
+            />
+            <TextInput
+              // Adding hint in Text Input using Place holder.
+              placeholder="Enter Arriving Place"
+              onChangeText={TextInputTo => this.setState({TextInputTo})}
+              // Making the Under line Transparent.
+              underlineColorAndroid='transparent'
+              style={styles.TextInputStyleClass}
+            />
+            <TextInput
+              // Adding hint in Text Input using Place holder.
+              placeholder="Enter Date"
+              onChangeText={TextInputDate => this.setState({TextInputDate})}
+              // Making the Under line Transparent.
+              underlineColorAndroid='transparent'
+              style={styles.TextInputStyleClass}
+            />
+            <TextInput
+              // Adding hint in Text Input using Place holder.
+              placeholder="Enter Number of Rooms"
+              onChangeText={TextInputRooms => this.setState({TextInputRooms})}
+              // Making the Under line Transparent.
+              underlineColorAndroid='transparent'
+              style={styles.TextInputStyleClass}
+            />
+            <Button
+              onPress={() => navigate('MoveDetails')}
+              title="Check your Price"
+            />
+            <Button title="CONFIRM" onPress={this.CheckTextInputIsEmptyOrNot} color="#2196F3" />
+      </View>;
+  }
+}
+
+class MoveDetailsScreen extends React.Component {
+  static navigationOptions = {
+    title: 'New Move'
+  };
+  render() {
+    return    <View style={styles.MainContainer}>
+              <MapView style={[styles.map]} showsUserLocation={true} />
+              <Text style={[styles.headline]}>Estimated Price</Text>
+              <Text style={[styles.headline]}>42$</Text>
+
+      </View>
   }
 }
 
@@ -191,6 +315,8 @@ const App = StackNavigator({
   Login: { screen: LoginScreen },
   Home: { screen: HomeScreen },
   Register: { screen: RegisterScreen },
+  CreateMove: { screen: CreateMoveScreen },
+  MoveDetails: { screen: MoveDetailsScreen },
 });
 
 export default App;
@@ -228,4 +354,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
   },
+
+  body: {
+    textAlign: 'left', // <-- the magic
+    fontSize: 20,
+    marginLeft: 20,
+    width: 390,
+  },
+  MainContainer :{
+    justifyContent: 'center',
+    flex:1,
+    margin: 0
+  },
+  headline: {
+    textAlign: 'center', // <-- the magic
+    fontWeight: 'bold',
+    fontSize: 48,
+    marginTop: -20,
+    marginBottom: 40,
+
+    width: 390,
+  },
+  map:{
+    marginTop: -120,
+    height: 400,
+    margin: 0,
+  },
+  TextInputStyleClass: {
+    textAlign: 'center',
+    marginBottom: 7,
+    height: 40,
+    borderWidth: 1,
+    // Set border Hex Color Code Here.
+    borderColor: '#FF5722',
+  }
 });
