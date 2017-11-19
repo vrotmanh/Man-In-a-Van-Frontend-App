@@ -337,6 +337,8 @@ class HomeScreen extends React.Component {
     );
   }
 
+  _keyExtractor = (item, index) => index;
+
   componentDidMount() {
     return fetch('https://maniavan-18000.appspot.com/moves?user_id=1')
       .then((response) => response.json())
@@ -356,7 +358,11 @@ class HomeScreen extends React.Component {
       <View style = {styles.container2}>
         <Text style = {styles.headline2}>Your Moves</Text>
         <StatusBar hidden={false} translucent={false} animated={true} />
-        <FlatList style = {styles.container2} data={this.state.dataSource} renderItem = {this.renderRow} />
+        <FlatList
+        style = {styles.container2}
+        data={this.state.dataSource}
+        renderItem = {this.renderRow}
+        keyExtractor = {this._keyExtractor} />
         <Button
           onPress={() => navigate('CreateMove')}
           title="Publish your move"
