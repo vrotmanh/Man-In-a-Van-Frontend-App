@@ -316,9 +316,12 @@ class Move extends Component {
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
+    user_id = this.props.navigation.state.params.user_id;
     this.state = {
-      dataSource: ''
+      dataSource: '',
+      user_id: user_id
     }
+    console.log(this.state)
   }
 
   renderRow({item}) {
@@ -338,7 +341,7 @@ class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
-    return fetch('https://maniavan-18000.appspot.com/moves?user_id=1')
+    return fetch('https://maniavan-18000.appspot.com/moves?user_id='+this.state.user_id)
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
