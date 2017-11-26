@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableHighlight, FlatList, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableHighlight, FlatList, StatusBar,Image } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import MapView from 'react-native-maps';
 
@@ -79,7 +79,7 @@ class LoginScreen extends React.Component {
             accessibilityLabel="Register"
           />
           <Button
-            onPress={() => navigate('Home', { user_id: 1 })}
+            onPress={() => navigate('MatchingScreen', { user_id: 1 })}
             title="Bypass"
             color="#205166"
             accessibilityLabel="Bypass"
@@ -208,6 +208,7 @@ class CreateMoveScreen extends React.Component {
         }
     else{
       // Do something here which you want to if all the Text Input is filled.
+      const { navigate } = this.props.navigation;
       Alert.alert("All Text Input is Filled.");
       console.log(this.state);
       fetch('https://maniavan-18000.appspot.com/moves', {
@@ -226,6 +227,7 @@ class CreateMoveScreen extends React.Component {
       .then((response) => response.json())
       .then((responseJson) => {
         //Login successfully
+        navigate('MatchingScreen')
         if (responseJson.user_id){
           Alert.alert(responseJson.user_id+'');
         }
@@ -237,7 +239,7 @@ class CreateMoveScreen extends React.Component {
       .catch((error) => {
           console.error(error);
       });
-
+     //navigate('MatchingScreen')
     }
 
   }
@@ -299,6 +301,34 @@ class MoveDetailsScreen extends React.Component {
       </View>
   }
 }
+class MatchingScreen extends React.Component {
+  static navigationOptions = {
+    title: 'MatchingScreen'
+  };
+  constructor(props) {
+    super(props)
+    this.state = {
+      driverEmail:'jake.magid@cornell.com',
+      driverPicture: 'https://media.licdn.com/mpr/mpr/shrinknp_200_200/AAEAAQAAAAAAAAMVAAAAJDliMWE4NzE2LTIwZTUtNDlhYi04YzcxLTMyNjM0ZTQ3YTdjYQ.jpg',
+      userPicture: 'https://media.licdn.com/mpr/mpr/shrinknp_200_200/AAEAAQAAAAAAAAWXAAAAJDQwZTQ1ZmRlLTZmNjEtNDk5ZC1iZmY1LWZlMjY3ZTliMjJhYw.jpg'
+
+    }
+  }
+  render() {
+    const {navigate} =this.props.navigation;
+
+    return  <View style={styles.MainContainer}>
+    <Text style={[styles.headline]}>You have been matched!</Text>
+      <View style={{flexDirection:'row', alignItems:'center', justifyContent:'center'}}>
+      <Image source={{uri: this.state.driverPicture}} style={{width: 100, height: 100}} />
+      <Image source={{uri: this.state.userPicture}} style={{width: 100, height: 100}} />
+      </View>
+      <Text style={[styles.body]}>Feel free to contact your driver at {this.state.driverEmail}</Text>
+
+      <Button title="Confirm" onPress={this.CheckTextInputIsEmptyOrNot,() => navigate('Home')} color="#2196F3" />
+    </View>
+  }
+}
 
 class Move extends Component {
   render() {
@@ -340,6 +370,8 @@ class HomeScreen extends React.Component {
     );
   }
 
+  _keyExtractor = (item, index) => index;
+
   componentDidMount() {
     return fetch('https://maniavan-18000.appspot.com/moves?user_id='+this.state.user_id)
       .then((response) => response.json())
@@ -359,7 +391,11 @@ class HomeScreen extends React.Component {
       <View style = {styles.container2}>
         <Text style = {styles.headline2}>Your Moves</Text>
         <StatusBar hidden={false} translucent={false} animated={true} />
-        <FlatList style = {styles.container2} data={this.state.dataSource} renderItem = {this.renderRow} />
+        <FlatList
+        style = {styles.container2}
+        data={this.state.dataSource}
+        renderItem = {this.renderRow}
+        keyExtractor = {this._keyExtractor} />
         <Button
           onPress={() => navigate('CreateMove')}
           title="Publish your move"
@@ -378,6 +414,7 @@ const App = StackNavigator({
   Register: { screen: RegisterScreen },
   CreateMove: { screen: CreateMoveScreen },
   MoveDetails: { screen: MoveDetailsScreen },
+  MatchingScreen: { screen: MatchingScreen}
 });
 
 export default App;
@@ -385,6 +422,7 @@ export default App;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#eee',
     alignItems: 'center',
     alignSelf: "center"
   },
@@ -478,4 +516,23 @@ const styles = StyleSheet.create({
     // alignItems: 'center',
     // justifyContent: 'center',
   },
+  map: {
+    flex: 1,
+    alignSelf: 'stretch',
+    backgroundColor: '#222'
+  },
+  centeredView: {
+    flex:1,
+    alignItems:'stretch',
+    justifyContent:'center'
+  },
+
+  // Probably this style should get moved into a dedicated PhoneValidation component.
+  phoneNumberInput: {
+    marginTop: 20,
+    fontSize: 45,
+    color: 'white',
+    textAlign: 'center',
+    backgroundColor: '#222'
+  }
 });
