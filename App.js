@@ -79,7 +79,7 @@ class LoginScreen extends React.Component {
             accessibilityLabel="Register"
           />
           <Button
-            onPress={() => navigate('MatchingScreen', { user_id: 1 })}
+            onPress={() => navigate('Home', { user_id: 1 })}
             title="Bypass"
             color="#205166"
             accessibilityLabel="Bypass"
@@ -280,7 +280,7 @@ class CreateMoveScreen extends React.Component {
               style={styles.TextInputStyleClass}
             />
             <Button
-              onPress={() => navigate('MoveDetails')}
+              onPress={() => navigate('EstimatePrice')}
               title="Check your Price"
             />
             <Button title="CONFIRM" onPress={this.CheckTextInputIsEmptyOrNot} color="#2196F3" />
@@ -288,7 +288,7 @@ class CreateMoveScreen extends React.Component {
   }
 }
 
-class MoveDetailsScreen extends React.Component {
+class EstimatePriceScreen extends React.Component {
   static navigationOptions = {
     title: 'New Move'
   };
@@ -334,7 +334,7 @@ class Move extends Component {
   render() {
     return (
       <View style = {styles.test2}>
-        <Text>DateOfMove: {this.props.dateofmove}</Text>
+        <Text style = {[styles.move_time]}>DateOfMove: {this.props.dateofmove}</Text>
         <Text>Price: {this.props.price}</Text>
         <Text>Start Point: {this.props.start_pt}</Text>
         <Text>End Pt: {this.props.end_pt}</Text>
@@ -351,6 +351,9 @@ class HomeScreen extends React.Component {
     }
   }
 
+  // Reference to navigator
+  _navigation;
+
   renderRow({item}) {
     const dateofmove = `${item.date}`;
     const price = `${item.price}`;
@@ -363,7 +366,14 @@ class HomeScreen extends React.Component {
       </View>;
 
     return (
-      actualRowComponent
+      <TouchableHighlight
+        activeOpacity={0.5}
+        underlayColor = '#FFFFFF00'
+        onPress = {() => {
+          this._navigation.navigate('MoveDetails', {...item});
+        }}>
+        {actualRowComponent}
+      </TouchableHighlight>
     );
   }
 
@@ -383,7 +393,8 @@ class HomeScreen extends React.Component {
   }
 
   render() {
-    const { navigate } = this.props.navigation;
+    _navigation = this.props.navigation;
+    const {navigate} = this.props.navigation;
     return (
       <View style = {styles.container2}>
         <Text style = {styles.headline2}>Your Moves</Text>
@@ -405,12 +416,48 @@ class HomeScreen extends React.Component {
   }
 }
 
+class MoveDetailsScreen extends React.Component {
+  static navigationOptions = {
+    title: 'New Move'
+  };
+
+
+  render() {
+    const {customer_id, date, end_place, price, start_place} = this.props.navigation.state.params
+    return (
+      <View style={styles.MainContainer}>
+        <MapView style={[styles.map]} showsUserLocation={true} />
+        <Text>Hi {customer_id}</Text>
+        <Text>Start Place: {start_place}</Text>
+        <Text>End Place: {end_place}</Text>
+        <Text>Date: {date}</Text>
+        <Text>Price: {price}</Text>
+        <Button
+          onPress = {() => {
+            Alert.alert('Call driver!')
+          }}
+          title = "Contact Driver"
+          color = "#ff0000"
+        />
+        <Button
+          onPress = {() => {
+            Alert.alert('Ride canceled!')
+          }}
+          title = "Cancel Move"
+          color = "#ff0000"
+        />
+      </View>
+    )
+  }
+}
+
 const App = StackNavigator({
   Login: { screen: LoginScreen },
   Home: { screen: HomeScreen },
   Register: { screen: RegisterScreen },
   CreateMove: { screen: CreateMoveScreen },
   MoveDetails: { screen: MoveDetailsScreen },
+  EstimatePrice: { screen: EstimatePriceScreen} ,
   MatchingScreen: { screen: MatchingScreen}
 });
 
@@ -488,10 +535,16 @@ const styles = StyleSheet.create({
     //flex: 1,
     flex: 1,
     padding: 8,
-    flexDirection: 'column', // main axis
+    flexDirection: 'row', // main axis
     // justifyContent: 'center', // main axis
     // alignItems: 'center', // cross axis
     // backgroundColor: '#fff000', //colors.background_dark,
+  },
+  move_time: {
+    color: "#ff0000",
+    textAlignVertical: 'bottom',
+    includeFontPadding: false,
+    flex: 0,
   },
   test2: {
     flex: 1,
@@ -499,6 +552,8 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderColor: '#000000',
     borderWidth: 3,
+    borderRadius: 5,
+    elevation: 1,
   },
   headline2: {
     textAlign: 'center',
