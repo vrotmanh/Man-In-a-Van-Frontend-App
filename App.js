@@ -127,7 +127,16 @@ class RegisterScreen extends React.Component {
           navigate('Home', { user_id: responseJson.user_id })
         }
         //Login error
-        else{
+        else if (responseJson.message){
+          Alert.alert(
+              'Message',
+              responseJson.message+'',
+              [
+                {text: 'OK', onPress: () => navigate('Login')},
+              ],
+              { cancelable: false }
+            )
+        }else if (responseJson.error){
           Alert.alert(responseJson.error+'');
         }
       })
@@ -188,11 +197,13 @@ class CreateMoveScreen extends React.Component {
   };
   constructor(props) {
     super(props)
+    user_id = this.props.navigation.state.params.user_id;
     this.state = {
       TextInputFrom: '',
       TextInputTo: '',
       TextInputDate: '',
-      TextInputRooms:''
+      TextInputRooms:'',
+      user_id: user_id
     }
   }
   CheckTextInputIsEmptyOrNot = () =>{
@@ -209,8 +220,6 @@ class CreateMoveScreen extends React.Component {
     else{
       // Do something here which you want to if all the Text Input is filled.
       const { navigate } = this.props.navigation;
-      Alert.alert("All Text Input is Filled.");
-      console.log(this.state);
       fetch('https://maniavan-18000.appspot.com/moves', {
         method: 'POST',
         headers: {
@@ -221,19 +230,14 @@ class CreateMoveScreen extends React.Component {
           "start_place": TextInputFrom,
           "end_place": TextInputTo,
           "date": TextInputDate,
-          "user_id": "1",
+          "user_id": this.state.user_id,
         })
       })
       .then((response) => response.json())
       .then((responseJson) => {
-        //Login successfully
-        navigate('MatchingScreen')
-        if (responseJson.user_id){
-          Alert.alert(responseJson.user_id+'');
-        }
-        //Login error
-        else{
-          Alert.alert(responseJson.error+'');
+        if(responseJson.move_id){
+          navigate('MatchingScreen', { user_id: this.state.user_id, driver_email: responseJson.driver_email,
+          driver_image: responseJson.driver_image, customer_image: responseJson.customer_image })
         }
       })
       .catch((error) => {
@@ -307,11 +311,15 @@ class MatchingScreen extends React.Component {
   };
   constructor(props) {
     super(props)
+    user_id = this.props.navigation.state.params.user_id;
+    driver_email = this.props.navigation.state.params.driver_email;
+    customer_image = this.props.navigation.state.params.customer_image;
+    driver_image = this.props.navigation.state.params.driver_image;
     this.state = {
-      driverEmail:'jake.magid@cornell.com',
-      driverPicture: 'https://media.licdn.com/mpr/mpr/shrinknp_200_200/AAEAAQAAAAAAAAMVAAAAJDliMWE4NzE2LTIwZTUtNDlhYi04YzcxLTMyNjM0ZTQ3YTdjYQ.jpg',
-      userPicture: 'https://media.licdn.com/mpr/mpr/shrinknp_200_200/AAEAAQAAAAAAAAWXAAAAJDQwZTQ1ZmRlLTZmNjEtNDk5ZC1iZmY1LWZlMjY3ZTliMjJhYw.jpg'
-
+      user_id: user_id,
+      driverEmail: driver_email,
+      driverPicture: driver_image,
+      userPicture: driver_image
     }
   }
   render() {
@@ -324,8 +332,12 @@ class MatchingScreen extends React.Component {
       <Image source={{uri: this.state.userPicture}} style={{width: 100, height: 100}} />
       </View>
       <Text style={[styles.body]}>Feel free to contact your driver at {this.state.driverEmail}</Text>
-
-      <Button title="Confirm" onPress={this.CheckTextInputIsEmptyOrNot,() => navigate('Home')} color="#2196F3" />
+      <Button
+        onPress={() => navigate('Home', { user_id: this.state.user_id })}
+        title="Confirm"
+        color="#2196F3"
+        accessibilityLabel="Confirm"
+      />
     </View>
   }
 }
@@ -351,7 +363,6 @@ class HomeScreen extends React.Component {
       dataSource: '',
       user_id: user_id
     }
-    console.log(this.state)
   }
 
   renderRow({item}) {
@@ -397,7 +408,7 @@ class HomeScreen extends React.Component {
         renderItem = {this.renderRow}
         keyExtractor = {this._keyExtractor} />
         <Button
-          onPress={() => navigate('CreateMove')}
+          onPress={() => navigate('CreateMove', { user_id: this.state.user_id })}
           title="Publish your move"
           color="#205166"
           accessibilityLabel="Go to create move"
@@ -422,7 +433,6 @@ export default App;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#eee',
     alignItems: 'center',
     alignSelf: "center"
   },
