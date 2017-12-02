@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableHighlight, FlatList, StatusBar,Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableHighlight, FlatList, StatusBar,Image, Linking } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import MapView from 'react-native-maps';
 
@@ -79,7 +79,7 @@ class LoginScreen extends React.Component {
             accessibilityLabel="Register"
           />
           <Button
-            onPress={() => navigate('Home', { user_id: 16, user_email: 'mb2589@cornell.edu' })}
+            onPress={() => navigate('Home', { user_id: 18, user_email: 'vichorot@gmail.com' })}
             title="Bypass"
             color="#205166"
             accessibilityLabel="Bypass"
@@ -374,8 +374,8 @@ class HomeScreen extends React.Component {
   renderRow({item}) {
     const dateofmove = `${item.date}`;
     const price = `${item.price}`;
-    const start_pt = `${item.start_place}`
-    const end_pt = `${item.end_place}`
+    const start_pt = `${item.start_place}`;
+    const end_pt = `${item.end_place}`;
 
     let actualRowComponent =
       <View style = {styles.test}>
@@ -428,7 +428,6 @@ class HomeScreen extends React.Component {
         />
       </View>
     );
-
   }
 }
 
@@ -439,7 +438,7 @@ class MoveDetailsScreen extends React.Component {
 
 
   render() {
-    const {customer_id, user_email, date, end_place, price, start_place} = this.props.navigation.state.params
+    const {customer_id, user_email, driver_email, date, end_place, price, start_place} = this.props.navigation.state.params
     return (
       <View style={styles.MainContainer}>
         <MapView style={[styles.map]} showsUserLocation={true} />
@@ -450,7 +449,7 @@ class MoveDetailsScreen extends React.Component {
         <Text>Price: {price}</Text>
         <Button
           onPress = {() => {
-            Alert.alert('Call driver!')
+            Linking.openURL('mailto:' + driver_email + '?subject=Planned Move Inquiry&body=Hello, \n I would like to reach out about my planned move. \n Thanks!')
           }}
           title = "Contact Driver"
           color = "#ff0000"
