@@ -32,7 +32,7 @@ class LoginScreen extends React.Component {
       .then((responseJson) => {
         //Login successfully
         if (responseJson.user_id){
-          navigate('Home', { user_id: responseJson.user_id })
+          navigate('Home', { user_id: responseJson.user_id,  user_email: this.state.email})
         }
         //Login error
         else{
@@ -79,7 +79,7 @@ class LoginScreen extends React.Component {
             accessibilityLabel="Register"
           />
           <Button
-            onPress={() => navigate('Home', { user_id: 1 })}
+            onPress={() => navigate('Home', { user_id: 16, user_email: 'mb2589@cornell.edu' })}
             title="Bypass"
             color="#205166"
             accessibilityLabel="Bypass"
@@ -124,7 +124,7 @@ class RegisterScreen extends React.Component {
       .then((responseJson) => {
         //Login successfully
         if (responseJson.user_id){
-          navigate('Home', { user_id: responseJson.user_id })
+          navigate('Home', { user_id: responseJson.user_id, user_email: this.state.email})
         }
         //Login error
         else if (responseJson.message){
@@ -198,12 +198,14 @@ class CreateMoveScreen extends React.Component {
   constructor(props) {
     super(props)
     user_id = this.props.navigation.state.params.user_id;
+    user_email = this.props.navigation.state.params.user_email;
     this.state = {
       TextInputFrom: '',
       TextInputTo: '',
       TextInputDate: '',
       TextInputRooms:'',
-      user_id: user_id
+      user_id: user_id,
+      user_email: user_email
     }
   }
   CheckTextInputIsEmptyOrNot = () =>{
@@ -236,7 +238,7 @@ class CreateMoveScreen extends React.Component {
       .then((response) => response.json())
       .then((responseJson) => {
         if(responseJson.move_id){
-          navigate('MatchingScreen', { user_id: this.state.user_id, driver_email: responseJson.driver_email,
+          navigate('MatchingScreen', { user_id: this.state.user_id, user_email: this.state.user_email, driver_email: responseJson.driver_email,
           driver_image: responseJson.driver_image, customer_image: responseJson.customer_image })
         }
       })
@@ -312,11 +314,13 @@ class MatchingScreen extends React.Component {
   constructor(props) {
     super(props)
     user_id = this.props.navigation.state.params.user_id;
+    user_email = this.props.navigation.state.params.user_email;
     driver_email = this.props.navigation.state.params.driver_email;
     customer_image = this.props.navigation.state.params.customer_image;
     driver_image = this.props.navigation.state.params.driver_image;
     this.state = {
       user_id: user_id,
+      user_email: user_email,
       driverEmail: driver_email,
       driverPicture: driver_image,
       userPicture: driver_image
@@ -333,7 +337,7 @@ class MatchingScreen extends React.Component {
       </View>
       <Text style={[styles.body]}>Feel free to contact your driver at {this.state.driverEmail}</Text>
       <Button
-        onPress={() => navigate('Home', { user_id: this.state.user_id })}
+        onPress={() => navigate('Home', { user_id: this.state.user_id,  user_email: this.state.user_email})}
         title="Confirm"
         color="#2196F3"
         accessibilityLabel="Confirm"
@@ -359,14 +363,13 @@ class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     user_id = this.props.navigation.state.params.user_id;
+    user_email = this.props.navigation.state.params.user_email;
     this.state = {
       dataSource: '',
-      user_id: user_id
+      user_id: user_id,
+      user_email: user_email
     }
   }
-
-  // Reference to navigator
-  _navigation;
 
   renderRow({item}) {
     const dateofmove = `${item.date}`;
@@ -384,7 +387,7 @@ class HomeScreen extends React.Component {
         activeOpacity={0.5}
         underlayColor = '#FFFFFF00'
         onPress = {() => {
-          this._navigation.navigate('MoveDetails', {...item});
+          this.props.navigation.navigate('MoveDetails', {...item, user_email: this.state.user_email});
         }}>
         {actualRowComponent}
       </TouchableHighlight>
@@ -407,7 +410,6 @@ class HomeScreen extends React.Component {
   }
 
   render() {
-    _navigation = this.props.navigation;
     const {navigate} = this.props.navigation;
     return (
       <View style = {styles.container2}>
@@ -416,10 +418,10 @@ class HomeScreen extends React.Component {
         <FlatList
         style = {styles.container2}
         data={this.state.dataSource}
-        renderItem = {this.renderRow}
+        renderItem = {this.renderRow.bind(this)}
         keyExtractor = {this._keyExtractor} />
         <Button
-          onPress={() => navigate('CreateMove', { user_id: this.state.user_id })}
+          onPress={() => navigate('CreateMove', { user_id: this.state.user_id, user_email: this.state.user_email })}
           title="Publish your move"
           color="#205166"
           accessibilityLabel="Go to create move"
@@ -437,11 +439,11 @@ class MoveDetailsScreen extends React.Component {
 
 
   render() {
-    const {customer_id, date, end_place, price, start_place} = this.props.navigation.state.params
+    const {customer_id, user_email, date, end_place, price, start_place} = this.props.navigation.state.params
     return (
       <View style={styles.MainContainer}>
         <MapView style={[styles.map]} showsUserLocation={true} />
-        <Text>Hi {customer_id}</Text>
+        <Text>Hi, {user_email}!</Text>
         <Text>Start Place: {start_place}</Text>
         <Text>End Place: {end_place}</Text>
         <Text>Date: {date}</Text>
