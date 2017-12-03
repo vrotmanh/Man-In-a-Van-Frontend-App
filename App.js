@@ -1,7 +1,27 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableHighlight, FlatList, StatusBar,Image, Linking } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  TextInput,
+  Button,
+  Alert,
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+  Keyboard,
+  FlatList,
+  StatusBar,
+  KeyboardAvoidingView,
+  Image,
+  Linking } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import {Button as RNButton, Icon} from 'react-native-elements';
 import MapView from 'react-native-maps';
+import Moment from 'moment';
+
+const window = Dimensions.get('window');
+
 
 class LoginScreen extends React.Component {
   static navigationOptions = {
@@ -48,44 +68,55 @@ class LoginScreen extends React.Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Login</Text>
-        </View>
-        <View style={styles.content}>
-          <TextInput
-            style={styles.loginInput}
-            placeholder="Enter your email"
-            onChangeText={(text) => this.setState({email:text})}
-          />
-          <TextInput
-            secureTextEntry={true}
-            style={styles.loginInput}
-            placeholder="Enter your password"
-            onChangeText={(text) => this.setState({password:text})}
-          />
-          <Button
-            onPress={() => this._login(this.state.email, this.state.password)}
-            title="Login"
-            color="#205166"
-            accessibilityLabel="Login"
-          />
-        </View>
-        <View style={styles.footer}>
-          <Button
-            onPress={() => navigate('Register')}
-            title="Register"
-            color="#205166"
-            accessibilityLabel="Register"
-          />
-          <Button
-            onPress={() => navigate('Home', { user_id: 18, user_email: 'vichorot@gmail.com' })}
-            title="Bypass"
-            color="#205166"
-            accessibilityLabel="Bypass"
-          />
-        </View>
-      </View>
+        <KeyboardAvoidingView
+        style={styles.container}
+        behavior="padding"
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.background}></View>
+          </TouchableWithoutFeedback>
+          <View style={{flex:0.4}}>
+            <Text style={styles.headline}>Man In A Van</Text>
+          </View>
+          <View style={styles.content}>
+            <View style = {styles.inputTextView}>
+              <TextInput
+                style={styles.loginInput}
+                placeholder="Enter your email"
+                onChangeText={(text) => this.setState({email:text})}
+              />
+            </View>
+            <View style={styles.inputTextView}>
+              <TextInput
+                secureTextEntry={true}
+                style={styles.loginInput}
+                placeholder="Enter your password"
+                onChangeText={(text) => this.setState({password:text})}
+              />
+            </View>
+            <RNButton
+              buttonStyle={styles.buttonBasic}
+              large
+              icon = {{type:'entypo' , name:'login'}}
+              title="Login"
+              onPress={() => this._login(this.state.email, this.state.password)}
+            />
+            <View style={{height: 100, backgroundColor: '#1d5266'}}>
+              <Button
+                onPress={() => navigate('Home', { user_id: 16, user_email: 'mb2589@cornell.edu' })}
+                title="Bypass"
+                color="#fff000"
+              />
+            </View>
+            <RNButton
+              buttonStyle={styles.buttonBasic}
+              icon = {{type:'MatrialIcons', name:'create'}}
+              onPress={() => navigate('Register')}
+              large
+              title="Register"
+            />
+          </View>
+        </KeyboardAvoidingView>
     );
   }
 }
@@ -149,44 +180,49 @@ class RegisterScreen extends React.Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Register</Text>
+      <KeyboardAvoidingView
+      style={styles.container}
+      behavior="padding"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.background}></View>
+        </TouchableWithoutFeedback>
+        <View style = {{flex:0.4}}>
+          <Text style={styles.headline}>Register</Text>
         </View>
         <View style={styles.content}>
-          <TextInput
-            style={styles.loginInput}
-            placeholder="Enter your email"
-            onChangeText={(text) => this.setState({email:text})}
-          />
-          <TextInput
-            secureTextEntry={true}
-            style={styles.loginInput}
-            placeholder="Enter your password"
-            onChangeText={(text) => this.setState({password:text})}
-          />
-          <TextInput
-            secureTextEntry={true}
-            style={styles.loginInput}
-            placeholder="Confirm your password"
-            onChangeText={(text) => this.setState({password_confirmation:text})}
-          />
-          <Button
+          <View style = {styles.inputTextView}>
+            <TextInput
+              style={styles.loginInput}
+              placeholder="Enter your email"
+              onChangeText={(text) => this.setState({email:text})}
+            />
+          </View>
+          <View style = {styles.inputTextView}>
+            <TextInput
+              secureTextEntry={true}
+              style={styles.loginInput}
+              placeholder="Enter your password"
+              onChangeText={(text) => this.setState({password:text})}
+            />
+          </View>
+          <View style = {styles.inputTextView}>
+            <TextInput
+              secureTextEntry={true}
+              style={styles.loginInput}
+              placeholder="Confirm your password"
+              onChangeText={(text) => this.setState({password_confirmation:text})}
+            />
+          </View>
+          <RNButton
             onPress={() => this._register(this.state.email, this.state.password, this.state.password_confirmation)}
-            title="Register"
-            color="#205166"
-            accessibilityLabel="Register"
+            buttonStyle= {styles.buttonBasic}
+            large
+            title="Sign Up"
+            icon = {{type:'entypo', name:'add-user'}}
           />
         </View>
-        <View style={styles.footer}>
-          <Button
-            onPress={() => navigate('Login')}
-            title="Go to Login"
-            color="#205166"
-            accessibilityLabel="Go to Login"
-          />
-        </View>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -251,46 +287,65 @@ class CreateMoveScreen extends React.Component {
   }
   render() {
     const {navigate} =this.props.navigation;
-    return   <View style={styles.MainContainer}>
-      <Text style={[styles.headline]}>New Move</Text>
+    return (
+      <KeyboardAvoidingView
+      style={styles.container}
+      behavior="padding"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.background}></View>
+        </TouchableWithoutFeedback>
+        <View style={{flex:0.2}}>
+          <Text style={styles.headline}>Create Move</Text>
+        </View>
+        <View style = {styles.content}>
+          <View style = {styles.inputTextView}>
             <TextInput
-              // Adding hint in Text Input using Place holder.
+              style={styles.loginInput}
               placeholder="Enter Starting Place"
               onChangeText={TextInputFrom=> this.setState({TextInputFrom})}
-              // Making the Under line Transparent.
-              underlineColorAndroid='transparent'
-              style={styles.TextInputStyleClass}
             />
+          </View>
+          <View style = {styles.inputTextView}>
             <TextInput
-              // Adding hint in Text Input using Place holder.
+              style={styles.loginInput}
               placeholder="Enter Arriving Place"
               onChangeText={TextInputTo => this.setState({TextInputTo})}
-              // Making the Under line Transparent.
-              underlineColorAndroid='transparent'
-              style={styles.TextInputStyleClass}
             />
+          </View>
+          <View style = {styles.inputTextView}>
             <TextInput
-              // Adding hint in Text Input using Place holder.
+              style={styles.loginInput}
               placeholder="Enter Date"
               onChangeText={TextInputDate => this.setState({TextInputDate})}
-              // Making the Under line Transparent.
-              underlineColorAndroid='transparent'
-              style={styles.TextInputStyleClass}
             />
+          </View>
+          <View style = {styles.inputTextView}>
             <TextInput
-              // Adding hint in Text Input using Place holder.
+              style={styles.loginInput}
               placeholder="Enter Number of Rooms"
               onChangeText={TextInputRooms => this.setState({TextInputRooms})}
-              // Making the Under line Transparent.
-              underlineColorAndroid='transparent'
-              style={styles.TextInputStyleClass}
             />
-            <Button
+          </View>
+          <View style = {styles.moveRow}>
+            <RNButton
+              buttonStyle={styles.buttonBasic}
+              icon = {{type:'entypo', name:'eye'}}
               onPress={() => navigate('EstimatePrice')}
-              title="Check your Price"
+              // large
+              title="Check Price"
             />
-            <Button title="CONFIRM" onPress={this.CheckTextInputIsEmptyOrNot} color="#2196F3" />
-      </View>;
+            <RNButton
+              buttonStyle={styles.buttonBasic}
+              icon = {{type:'entypo', name:'check'}}
+              onPress={this.CheckTextInputIsEmptyOrNot}
+              // large
+              title="Register"
+            />
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    );
   }
 }
 
@@ -348,18 +403,35 @@ class MatchingScreen extends React.Component {
 
 class Move extends Component {
   render() {
+    Moment.locale('en');
+    var itemDate = this.props.dateofmove;
+    console.log(itemDate)
     return (
-      <View style = {styles.test2}>
-        <Text style = {[styles.move_time]}>DateOfMove: {this.props.dateofmove}</Text>
-        <Text>Price: {this.props.price}</Text>
-        <Text>Start Point: {this.props.start_pt}</Text>
-        <Text>End Pt: {this.props.end_pt}</Text>
+      <View style = {styles.moveItem}>
+        <View style = {styles.moveRow}>
+          <Text style = {styles.moveDate}>{Moment(itemDate).format('MMM Do')}</Text>
+          <Text style = {styles.movePrice}>${this.props.price}</Text>
+        </View>
+        <View style = {styles.moveRow}>
+          <Text adjustsFontSizeToFit={true} style = {styles.placeDest}>{this.props.start_pt}</Text>
+          <Icon
+            color= '#fff'
+            size={30}
+            name='arrow-right'
+            type='entypo'
+          />
+          <Text adjustsFontSizeToFit={true} style = {styles.placeDest}>{this.props.end_pt}</Text>
+        </View>
       </View>
     )
   }
 }
 
 class HomeScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Home',
+  };
+
   constructor(props) {
     super(props);
     user_id = this.props.navigation.state.params.user_id;
@@ -378,7 +450,7 @@ class HomeScreen extends React.Component {
     const end_pt = `${item.end_place}`;
 
     let actualRowComponent =
-      <View style = {styles.test}>
+      <View style = {styles.moveItemView}>
         <Move dateofmove = {dateofmove} price = {price} start_pt = {start_pt} end_pt = {end_pt} />
       </View>;
 
@@ -412,20 +484,24 @@ class HomeScreen extends React.Component {
   render() {
     const {navigate} = this.props.navigation;
     return (
-      <View style = {styles.container2}>
-        <Text style = {styles.headline2}>Your Moves</Text>
-        <StatusBar hidden={false} translucent={false} animated={true} />
+      <View style = {styles.container}>
+        <Text style = {styles.headline}>Your Moves</Text>
         <FlatList
-        style = {styles.container2}
+        style = {styles.flatListStyle}
         data={this.state.dataSource}
         renderItem = {this.renderRow.bind(this)}
         keyExtractor = {this._keyExtractor} />
-        <Button
-          onPress={() => navigate('CreateMove', { user_id: this.state.user_id, user_email: this.state.user_email })}
-          title="Publish your move"
-          color="#205166"
-          accessibilityLabel="Go to create move"
-        />
+        <View style = {styles.bottomButtonContainer}>
+          <Icon
+            color= '#1ccc31'
+            size={40}
+            backgroundColor = '#000000'
+            raised
+            name='add'
+            type='MaterialIcons'
+            onPress={() => navigate('CreateMove', { user_id: this.state.user_id, user_email: this.state.user_email })}
+          />
+        </View>
       </View>
     );
   }
@@ -439,6 +515,7 @@ class MoveDetailsScreen extends React.Component {
 
   render() {
     const {customer_id, user_email, driver_email, date, end_place, price, start_place} = this.props.navigation.state.params
+    console.log(this.props.navigation.state.params)
     return (
       <View style={styles.MainContainer}>
         <MapView style={[styles.map]} showsUserLocation={true} />
@@ -456,6 +533,10 @@ class MoveDetailsScreen extends React.Component {
         />
         <Button
           onPress = {() => {
+            // return fetch(url + '/' + item, {
+            //   method: 'delete'
+            // })
+            // .then(response => response.json());
             Alert.alert('Ride canceled!')
           }}
           title = "Cancel Move"
@@ -482,36 +563,105 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    alignSelf: "center"
+    backgroundColor: '#1d5266',
   },
-  header : {
-    flex: 1,
+  background: {
+    backgroundColor: '#1d5266',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
+  },
+  headerLanding : {
+    flex: 0.5,
     alignItems: 'center',
     flexDirection: 'row',
   },
   headerText: {
-    fontSize: 26,
+    fontSize: 42,
     alignItems: 'center',
     fontWeight: 'bold',
-    color: '#205166'
+    color: '#FFFFFF',
   },
   content: {
-    flex: 2,
+    flex: 1,
     marginTop: 50,
     alignItems: 'center',
     flexDirection: 'column',
   },
+  buttonBasic: {
+    backgroundColor: '#1ccc31',
+    borderRadius: 5,
+  },
+  buttonBasicWithPad: {
+    backgroundColor: '#1ccc31',
+    borderRadius: 5,
+    marginBottom: 80
+  },
+  inputTextView: {
+    backgroundColor: '#FFFFFF',
+    marginBottom: 8,
+    borderRadius: 8,
+  },
   loginInput: {
-    width: 200,
-    height: 50,
+    width: window.width - 150,
+    height: 40,
     fontSize: 18,
+    marginHorizontal: 10
   },
   footer: {
     flex: 1,
     alignItems: 'center',
+    height: window.height - 80,
+  },
+  flatListStyle: {
+    flex: 1,
+    backgroundColor: '#1d5266',
+    width: window.width - 10,
+  },
+  moveItemView: {
+    flex: 1,
+    padding: 8,
     flexDirection: 'row',
   },
-
+  moveItem: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: '#1ccc31',
+    borderStyle: 'solid',
+    borderColor: '#000000',
+    borderWidth: 3,
+    borderRadius: 5,
+    elevation: 1,
+  },
+  moveDate: {
+    flex: 1,
+    textAlign: 'left',
+    fontSize: 20,
+  },
+  movePrice: {
+    flex: 1,
+    fontSize: 20,
+    textAlign: 'right',
+  },
+  moveRow: {
+    flexDirection: 'row',
+    padding: 4
+  },
+  placeDest: {
+    flex:1,
+    fontSize: 24,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  bottomButtonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 30,
+    marginBottom: 30
+  },
   body: {
     textAlign: 'left', // <-- the magic
     fontSize: 20,
@@ -526,11 +676,11 @@ const styles = StyleSheet.create({
   headline: {
     textAlign: 'center', // <-- the magic
     fontWeight: 'bold',
+    color: '#FFFFFF',
     fontSize: 48,
-    marginTop: -20,
-    marginBottom: 40,
-
-    width: 390,
+    marginTop: 30,
+    marginBottom: 30,
+    width: window.width - 10,
   },
   map:{
     marginTop: -120,
@@ -545,42 +695,12 @@ const styles = StyleSheet.create({
     // Set border Hex Color Code Here.
     borderColor: '#FF5722',
   },
-  test: {
-    //flex: 1,
-    flex: 1,
-    padding: 8,
-    flexDirection: 'row', // main axis
-    // justifyContent: 'center', // main axis
-    // alignItems: 'center', // cross axis
-    // backgroundColor: '#fff000', //colors.background_dark,
-  },
-  move_time: {
-    color: "#ff0000",
-    textAlignVertical: 'bottom',
-    includeFontPadding: false,
-    flex: 0,
-  },
-  test2: {
-    flex: 1,
-    // backgroundColor: '#0000ff',
-    borderStyle: 'solid',
-    borderColor: '#000000',
-    borderWidth: 3,
-    borderRadius: 5,
-    elevation: 1,
-  },
   headline2: {
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 48,
     marginTop: 30,
     marginBottom: 30,
-  },
-  container2: {
-    flex: 1,
-    backgroundColor: '#fff',
-    // alignItems: 'center',
-    // justifyContent: 'center',
   },
   map: {
     flex: 1,
