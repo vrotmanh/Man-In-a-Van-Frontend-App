@@ -514,7 +514,7 @@ class MoveDetailsScreen extends React.Component {
 
 
   render() {
-    const {customer_id, user_email, driver_email, date, end_place, price, start_place} = this.props.navigation.state.params
+    const {customer_id, user_email, driver_email, move_id, date, end_place, price, start_place} = this.props.navigation.state.params
     console.log(this.props.navigation.state.params)
     return (
       <View style={styles.MainContainer}>
@@ -533,11 +533,15 @@ class MoveDetailsScreen extends React.Component {
         />
         <Button
           onPress = {() => {
-            // return fetch(url + '/' + item, {
-            //   method: 'delete'
-            // })
-            // .then(response => response.json());
-            Alert.alert('Ride canceled!')
+            const {navigate} = this.props.navigation;
+            console.log(move_id + ' ' + customer_id + ' ' + user_email)
+            fetch('https://maniavan-18000.appspot.com/moves?move_id=' + move_id, {
+              method: 'delete'
+            })
+            .then((response) => navigate('Home', { user_id: customer_id, user_email: user_email }) );
+
+            // Alert.alert('Ride canceled!')
+
           }}
           title = "Cancel Move"
           color = "#ff0000"
