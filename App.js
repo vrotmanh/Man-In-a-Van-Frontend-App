@@ -268,6 +268,7 @@ class CreateMoveScreen extends React.Component {
           "start_place": TextInputFrom,
           "end_place": TextInputTo,
           "date": TextInputDate,
+          "num_rooms" : TextInputRooms,
           "user_id": this.state.user_id,
         })
       })
@@ -378,7 +379,7 @@ class MatchingScreen extends React.Component {
       user_email: user_email,
       driverEmail: driver_email,
       driverPicture: driver_image,
-      userPicture: driver_image
+      userPicture: customer_image
     }
   }
   render() {
@@ -509,7 +510,7 @@ class HomeScreen extends React.Component {
 
 class MoveDetailsScreen extends React.Component {
   static navigationOptions = {
-    title: 'New Move'
+    title: 'Move Details'
   };
 
 
@@ -517,35 +518,43 @@ class MoveDetailsScreen extends React.Component {
     const {customer_id, user_email, driver_email, move_id, date, end_place, price, start_place} = this.props.navigation.state.params
     console.log(this.props.navigation.state.params)
     return (
-      <View style={styles.MainContainer}>
-        <MapView style={[styles.map]} showsUserLocation={true} />
-        <Text>Hi, {user_email}!</Text>
-        <Text>Start Place: {start_place}</Text>
-        <Text>End Place: {end_place}</Text>
-        <Text>Date: {date}</Text>
-        <Text>Price: {price}</Text>
-        <Button
-          onPress = {() => {
-            Linking.openURL('mailto:' + driver_email + '?subject=Planned Move Inquiry&body=Hello, \n I would like to reach out about my planned move. \n Thanks!')
-          }}
-          title = "Contact Driver"
-          color = "#ff0000"
-        />
-        <Button
-          onPress = {() => {
-            const {navigate} = this.props.navigation;
-            console.log(move_id + ' ' + customer_id + ' ' + user_email)
-            fetch('https://maniavan-18000.appspot.com/moves?move_id=' + move_id, {
-              method: 'delete'
-            })
-            .then((response) => navigate('Home', { user_id: customer_id, user_email: user_email }) );
-
-            // Alert.alert('Ride canceled!')
-
-          }}
-          title = "Cancel Move"
-          color = "#ff0000"
-        />
+      <View style={styles.container}>
+        <Text style = {styles.detailsHead}>Planned move for</Text>
+        <Text style = {styles.detailsHead}>{user_email}</Text>
+        <View style = {styles.mapView}>
+          <MapView style={styles.map} showsUserLocation={true} />
+        </View>
+        <View style = {styles.detailsButtons}>
+          <RNButton
+            buttonStyle={styles.buttonBasicWithHeight}
+            icon = {{type:'entypo', name:'mail'}}
+            onPress = {() => {
+              Linking.openURL('mailto:' + driver_email + '?subject=Planned Move Inquiry&body=Hello, \n I would like to reach out about my planned move. \n Thanks!')
+            }}
+            //large
+            title="Contact Driver"
+          />
+          <RNButton
+            buttonStyle={styles.buttonBasicWithHeight}
+            icon = {{type:'feather', name:'x'}}
+            onPress = {() => {
+              const {navigate} = this.props.navigation;
+              console.log(move_id + ' ' + customer_id + ' ' + user_email)
+              fetch('https://maniavan-18000.appspot.com/moves?move_id=' + move_id, {
+                method: 'delete'
+              })
+              .then((response) => navigate('Home', { user_id: customer_id, user_email: user_email }) );
+            }}
+            //large
+            title="Cancel move"
+          />
+        </View>
+        <View style = {styles.detailsContainer}>
+          <Text style={styles.detailsFont}>Start Place: {start_place}</Text>
+          <Text style={styles.detailsFont}>End Place: {end_place}</Text>
+          <Text style={styles.detailsFont}>Date: {Moment(date).format('MMM DD, YYYY')}</Text>
+          <Text style={styles.detailsFont}>Price: ${price}</Text>
+        </View>
       </View>
     )
   }
@@ -598,10 +607,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#1ccc31',
     borderRadius: 5,
   },
-  buttonBasicWithPad: {
+  buttonBasicWithHeight: {
     backgroundColor: '#1ccc31',
     borderRadius: 5,
-    marginBottom: 80
+    height: 60,
   },
   inputTextView: {
     backgroundColor: '#FFFFFF',
@@ -686,10 +695,39 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     width: window.width - 10,
   },
-  map:{
-    marginTop: -120,
-    height: 400,
-    margin: 0,
+  mapView: {
+    //flex:1,
+    width: window.width,
+    height: window.height / 3,
+  },
+  map: {
+    flex:1,
+  },
+  detailsHead: {
+    color: '#ffffff',
+    fontSize: 32,
+    marginTop: 5,
+    marginBottom: 5,
+    alignItems: 'center',
+  },
+  detailsFont: {
+    color: '#ffffff',
+    fontSize: 24,
+    textAlign: 'left'
+  },
+  detailsContainer: {
+    flex:1,
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 40,
+    marginRight: 40,
+    // justifyContent: 'left',
+  },
+  detailsButtons: {
+    flexDirection: 'row',
+    padding: 4,
+    marginTop: 10,
+    marginBottom: 10,
   },
   TextInputStyleClass: {
     textAlign: 'center',
