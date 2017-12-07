@@ -132,11 +132,15 @@ class RegisterScreen extends React.Component {
     this.state = {email: '', password: '', password_confirmation: ''};
   }
   _register(email, password, password_confirmation){
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (!email || !password || !password_confirmation){
-      Alert.alert('Fill all the inputs');
+      Alert.alert('Please fill in all the inputs');
     }
     else if (password != password_confirmation){
-      Alert.alert('Password and Confirmation does not match');
+      Alert.alert('Password and Confirmation do not match');
+    }
+    else if (!re.test(email)) {
+      Alert.alert('Please enter a valid email')
     }
     else{
       const { navigate } = this.props.navigation;
