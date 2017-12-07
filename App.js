@@ -102,11 +102,13 @@ class LoginScreen extends React.Component {
               onPress={() => this._login(this.state.email, this.state.password)}
             />
             <View style={{height: 100, backgroundColor: '#1d5266'}}>
-              <Button
-                onPress={() => navigate('Home', { user_id: 16, user_email: 'mb2589@cornell.edu' })}
-                title="Bypass"
-                color="#fff000"
-              />
+              {
+              // <Button
+              //   onPress={() => navigate('Home', { user_id: 16, user_email: 'mb2589@cornell.edu' })}
+              //   title="Bypass"
+              //   color="#fff000"
+              // />
+              }
             </View>
             <RNButton
               buttonStyle={styles.buttonBasic}
