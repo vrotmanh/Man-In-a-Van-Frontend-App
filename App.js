@@ -332,7 +332,7 @@ class CreateMoveScreen extends React.Component {
             <RNButton
               buttonStyle={styles.buttonBasic}
               icon = {{type:'entypo', name:'eye'}}
-              onPress={() => navigate('EstimatePrice')}
+              onPress={() => navigate('EstimatePrice', {num_rooms: this.state.TextInputRooms})}
               // large
               title="Check Price"
             />
@@ -354,13 +354,32 @@ class EstimatePriceScreen extends React.Component {
   static navigationOptions = {
     title: 'New Move'
   };
-  render() {
-    return    <View style={styles.MainContainer}>
-              <MapView style={[styles.map]} showsUserLocation={true} />
-              <Text style={[styles.headline]}>Estimated Price</Text>
-              <Text style={[styles.headline]}>42$</Text>
 
+  calculateText (n) {
+    pricePt = parseInt(n)*50 + (Math.floor(Math.random() * 2000) + 1)/100 ;
+    console.log(pricePt)
+    return pricePt;
+  }
+
+  render() {
+    console.log(this.props.navigation.state.params.num_rooms);
+    return  (
+      <View style={styles.container}>
+        <View style={{flex:0.6}}>
+          <Text style={styles.headline}>Price Estimation</Text>
+        </View>
+        <View style = {styles.mapView}>
+          <MapView style={[styles.map]} showsUserLocation={true} />
+        </View>
+        <View style = {styles.detailsContainer}>
+          <Text style={styles.estmPriceFontBold}>Estimated Price:</Text>
+          <Text style={styles.estmPriceFont}> {
+            this.props.navigation.state.params.num_rooms != "" ? "$" + this.calculateText(this.props.navigation.state.params.num_rooms) : "Please fill all fields out."
+          }
+          </Text>
+        </View>
       </View>
+    )
   }
 }
 class MatchingScreen extends React.Component {
@@ -385,20 +404,28 @@ class MatchingScreen extends React.Component {
   render() {
     const {navigate} =this.props.navigation;
 
-    return  <View style={styles.MainContainer}>
-    <Text style={[styles.headline]}>You have been matched!</Text>
-      <View style={{flexDirection:'row', alignItems:'center', justifyContent:'center'}}>
-      <Image source={{uri: this.state.driverPicture}} style={{width: 100, height: 100}} />
-      <Image source={{uri: this.state.userPicture}} style={{width: 100, height: 100}} />
+    return  (
+      <View style={styles.container}>
+        <View style={{flex:0.6}}>
+          <Text style={styles.headline}>You have been matched!</Text>
+        </View>
+        <View style={{flex:1, flexDirection:'row', alignItems:'center', justifyContent:'center', padding: 5}}>
+          <Image source={{uri: this.state.driverPicture}} style={{width: 150, height: 150}} />
+          <Image source={{uri: this.state.userPicture}} style={{width: 150, height: 150}} />
+        </View>
+        <View style = {styles.detailsContainer}>
+          <Text style = {styles.matchFontBold}>Contact your driver at: </Text>
+          <Text style = {styles.matchFont}>{this.state.driverEmail}</Text>
+          <RNButton
+            buttonStyle={styles.buttonBasic}
+            icon = {{type:'entypo', name:'check'}}
+            onPress={() => navigate('Home', { user_id: this.state.user_id,  user_email: this.state.user_email})}
+            large
+            title="Confirm"
+          />
+        </View>
       </View>
-      <Text style={[styles.body]}>Feel free to contact your driver at {this.state.driverEmail}</Text>
-      <Button
-        onPress={() => navigate('Home', { user_id: this.state.user_id,  user_email: this.state.user_email})}
-        title="Confirm"
-        color="#2196F3"
-        accessibilityLabel="Confirm"
-      />
-    </View>
+    )
   }
 }
 
@@ -406,7 +433,6 @@ class Move extends Component {
   render() {
     Moment.locale('en');
     var itemDate = this.props.dateofmove;
-    console.log(itemDate)
     return (
       <View style = {styles.moveItem}>
         <View style = {styles.moveRow}>
@@ -516,7 +542,6 @@ class MoveDetailsScreen extends React.Component {
 
   render() {
     const {customer_id, user_email, driver_email, move_id, date, end_place, price, start_place} = this.props.navigation.state.params
-    console.log(this.props.navigation.state.params)
     return (
       <View style={styles.container}>
         <Text style = {styles.detailsHead}>Planned move for</Text>
@@ -539,7 +564,6 @@ class MoveDetailsScreen extends React.Component {
             icon = {{type:'feather', name:'x'}}
             onPress = {() => {
               const {navigate} = this.props.navigation;
-              console.log(move_id + ' ' + customer_id + ' ' + user_email)
               fetch('https://maniavan-18000.appspot.com/moves?move_id=' + move_id, {
                 method: 'delete'
               })
@@ -714,6 +738,28 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 24,
     textAlign: 'left'
+  },
+  estmPriceFont: {
+    color: '#ffffff',
+    fontSize: 34,
+    textAlign: 'center',
+  },
+  estmPriceFontBold: {
+    color: '#ffffff',
+    fontSize: 38,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  matchFont: {
+    color: '#ffffff',
+    fontSize: 24,
+    textAlign: 'center',
+  },
+  matchFontBold: {
+    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   detailsContainer: {
     flex:1,
